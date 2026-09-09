@@ -1,0 +1,20 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Środowiska wirtualne
+venv/
+.venv/
+env/
+.env
+
+# Pliki systemowe i edytorów
+.ipynb_checkpoints/
+.virtual_documents/
+.vscode/
+.idea/
+.DS_Store
+
+# reguły dla danych
+dane/*.json
