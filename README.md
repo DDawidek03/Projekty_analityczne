@@ -19,7 +19,7 @@ Welcome to my professional Data Analytics portfolio. This repository showcases m
 
 | Project | Business Domain | Key Technologies | Status |
 |---|---|---|---|
-| [**01. Macroeconomic Analysis (GUS API)**](./01_Macroeconomic_Analysis_GUS) | Economics, Public Data | Python, REST API, Parquet, PostgreSQL | ETL Complete |
+| [**01. Macroeconomic Analysis (GUS API)**](./01_Macroeconomic_Analysis_GUS) | Economics, Public Data | Python, Parquet, PostgreSQL, SQL (Window Functions) | DB & SQL Complete |
 | [**02. RFM Customer Segmentation**](./02_RFM_Segmentation_ECommerce) | E-Commerce, CRM | PostgreSQL, SQL Window Functions | Planned |
 | [**03. Cohort Retention Analysis**](./03_Cohort_Retention_Analysis) | Behavioral Analytics, Churn | PostgreSQL, Datetime Operations | Planned |
 | [**04. Big Data ETL (NYC Taxi)**](./04_BigData_ETL_NYCTaxi) | Big Data, ETL | DuckDB, Apache Parquet | Planned |

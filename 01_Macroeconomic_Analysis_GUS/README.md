@@ -69,6 +69,9 @@ In this approach, all transformation is handled upstream in Python (Pandas), and
 │   ├── 03a_load_sql_raw_json.py       # Gold (ELT): Direct JSON → PostgreSQL via advanced SQL
 │   └── 03b_load_sql_parquet.py        # Gold (ETL): Parquet → PostgreSQL via Pandas/SQLAlchemy
 │
+├── sql_analysis/
+│   └── 04_business_queries.sql        # Business Queries: Window Functions (LAG), CTEs, Aggregations
+│
 └── dane/
     ├── dane_*.json                    # Raw API responses (Bronze layer)
     └── merged_data.parquet            # Transformed wide-format dataset (Silver layer)
@@ -116,7 +119,7 @@ python 03b_load_sql_parquet.py    # ETL approach (Python-centric)
 - [x] REST API Integration with pagination & rate-limit handling
 - [x] Pandas data transformation & Apache Parquet export
 - [x] PostgreSQL loading (two independent strategies: ETL & ELT)
-- [ ] Advanced SQL Analysis (Window Functions, CTEs, Ranking)
+- [x] Advanced SQL Analysis (Window Functions, CTEs, Ranking)
 - [ ] Power BI Executive Dashboard
 
 ---
