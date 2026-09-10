@@ -13,7 +13,6 @@ try:
     with ENGINE.connect() as conn:
 
         sql_code = text("""
-            --Usuwanie tabel
             drop table if exists fact_economic_indicators;
             drop table if exists dim_units;
 
