@@ -1,5 +1,6 @@
 from sqlalchemy import create_engine, text
 import json
+import pandas as pd
 
 USER = "damiandawidek"
 PASSWORD = ""
@@ -89,4 +90,4 @@ try:
                 
 
 except Exception as e:
-    print(f"Ups, błąd połączenia: {e}")
+    print(f"Błąd połączenia: {e}")
