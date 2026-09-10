@@ -85,7 +85,7 @@ def pobierz_dane_gus(id_wskaznika, lata):
     return wszystkie_dane
 
 lata = [2018, 2019, 2020, 2021, 2022, 2023, 2024]
-lista_wskaznikow = [459121, 64428, 155064, 58565, 395374, 72305, 3149]
+lista_wskaznikow = [459121, 64428, 155064, 58565, 395374, 72305, 3149, 6]
 
 for i in lista_wskaznikow:
     print(f"Pobieram wskaźnik {i}...")

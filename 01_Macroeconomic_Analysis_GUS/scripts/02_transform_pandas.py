@@ -6,7 +6,7 @@ import json
 
 pliki = ["dane_459121.json",
         "dane_3149.json","dane_58565.json","dane_64428.json",
-        "dane_72305.json","dane_155064.json","dane_395374.json"]
+        "dane_72305.json","dane_155064.json","dane_395374.json","dane_6.json"]
 
 tlumacz_wskaznikow = {
     "dane_459121.json": "bezrobocie",
@@ -15,7 +15,8 @@ tlumacz_wskaznikow = {
     "dane_58565.json": "przestepstwa",     
     "dane_395374.json": "nowe_firmy",      
     "dane_72305.json": "ludnosc",          
-    "dane_3149.json": "urodzenia"          
+    "dane_3149.json": "urodzenia",         
+    "dane_6.json": "zgony"
 }
 
 przetworzone_dane = []
