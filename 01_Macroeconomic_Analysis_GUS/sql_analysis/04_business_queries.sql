@@ -53,3 +53,15 @@ from pensje_rok_do_roku
 where rok::int = 2023
 
 -- Biznesowy problem: Inwestor nie lubi patrzeć na gołe kwoty wynagrodzeń. Chce mieć prosty dashboard, na którym powiaty są podzielone na 3 segmenty: "Wysokie zarobki", "Średnie zarobki" i "Niskie zarobki", aby łatwiej kierować kampanie marketingowe.
+
+select 
+		gi.name AS nazwa_powiatu, 
+		case
+			when gi.wynagrodzenia > 7000 then 'wysokie'
+			when gi.wynagrodzenia >= 5000 and gi.wynagrodzenia <= 7000 then 'Średnie'
+			when gi.wynagrodzenia < 5000 and gi.wynagrodzenia > 0 then 'Niskie'
+		else 
+			'Błędne dane'
+		end as Zarobki_Gmin,
+		round(cast(gi.wynagrodzenia as numeric),2) as wynagrodzenia
+from gus_indicators gi 
