@@ -51,3 +51,5 @@ with pensje_rok_do_roku as (
 select *, pensja_obecna - pensja_rok_wczesniej as wzrost_kwotowy
 from pensje_rok_do_roku
 where rok::int = 2023
+
+-- Biznesowy problem: Inwestor nie lubi patrzeć na gołe kwoty wynagrodzeń. Chce mieć prosty dashboard, na którym powiaty są podzielone na 3 segmenty: "Wysokie zarobki", "Średnie zarobki" i "Niskie zarobki", aby łatwiej kierować kampanie marketingowe.

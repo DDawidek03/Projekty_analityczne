@@ -1,12 +1,18 @@
+import os
+from dotenv import load_dotenv
 from sqlalchemy import create_engine, text
 import json
 import pandas as pd
 
-USER = "damiandawidek"
-PASSWORD = ""
-HOST = "localhost"
-PORT = "5432"
-DN_NAME = "Projekt_1"
+# Load environment variables from .env file located in the parent directory
+env_path = os.path.join(os.path.dirname(__file__), '..', '.env')
+load_dotenv(env_path)
+
+USER = os.getenv("DB_USER", "damiandawidek")
+PASSWORD = os.getenv("DB_PASSWORD", "")
+HOST = os.getenv("DB_HOST", "localhost")
+PORT = os.getenv("DB_PORT", "5432")
+DN_NAME = os.getenv("DB_NAME", "Projekt_1")
 
 ENGINE = create_engine(f"postgresql://{USER}:{PASSWORD}@{HOST}:{PORT}/{DN_NAME}")
 
