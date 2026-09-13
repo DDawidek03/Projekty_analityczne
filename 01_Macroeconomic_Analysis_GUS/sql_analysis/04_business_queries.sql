@@ -65,3 +65,18 @@ select
 		end as Zarobki_Gmin,
 		round(cast(gi.wynagrodzenia as numeric),2) as wynagrodzenia
 from gus_indicators gi 
+
+
+-- Biznesowy problem: Które powiaty przyciągają najwięcej inwestycji? Biznes chce oficjalnego rankingu (np. 1. miejsce, 2. miejsce, 3. miejsce itd.) dla roku 2023.
+with ranking_inwestycji as (
+select 
+	gi.name as nazwa_powiatu,
+	dense_rank() over (partition by gi."year" order by gi.inwestycje desc ) as Ranking,
+	gi.inwestycje  as inwestycje,
+	gi."year" as rok
+from gus_indicators gi
+)
+
+select * from ranking_inwestycji
+where rok::int = 2023
+order by Ranking
