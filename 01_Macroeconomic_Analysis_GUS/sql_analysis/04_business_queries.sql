@@ -80,3 +80,74 @@ from gus_indicators gi
 select * from ranking_inwestycji
 where rok::int = 2023
 order by Ranking
+
+
+-- Problem biznesowy:Pandemia roku 2020 była zewnętrznym szokiem ekonomicznym, który dotknął wszystkie powiaty bez wyjątku. Jednak nie wszystkie wyszły z tego kryzysu z jednakową siłą. Z perspektywy funduszu kluczowe jest pytanie: które regiony wykazały się największą odpornością i zdolnością do odbudowy? Powiat, który w 3 lata odrobił straty i zanotował realny wzrost wynagrodzeń, jest znacznie atrakcyjniejszym celem inwestycyjnym niż ten, który nadal stagnuje.
+
+with dane_rok_2023 as (
+
+select gi."name" as powiat,
+	   gi.wynagrodzenia 
+FROM gus_indicators gi 
+where gi.year::int = 2023 and gi.wynagrodzenia > 0
+
+), dane_rok_2020 as (
+
+select gi."name" as powiat,
+	   gi.wynagrodzenia 
+from gus_indicators gi 
+where gi.year::int = 2020 and gi.wynagrodzenia > 0
+
+), wzrost as (
+
+select dane_rok_2023.powiat,
+	dane_rok_2023.wynagrodzenia as Pensja_2023,
+	dane_rok_2020.wynagrodzenia as Pensja_2020,
+	round((( cast(dane_rok_2023.wynagrodzenia as numeric) - cast(dane_rok_2020.wynagrodzenia as numeric)) / cast(dane_rok_2020.wynagrodzenia as numeric)) * 100,2) as wzrost_procentowy
+from  dane_rok_2023
+inner join dane_rok_2020 on dane_rok_2023.powiat = dane_rok_2020.powiat
+)
+
+select 
+  powiat,
+    pensja_2023,
+    pensja_2020,
+	CASE
+        WHEN wzrost_procentowy > 0 THEN '⬆ ' || wzrost_procentowy::TEXT || '%'
+        WHEN wzrost_procentowy < 0 THEN '⬇ '  || wzrost_procentowy::TEXT || '%'
+        ELSE '→ 0.00%'
+    end AS kpi_trend
+from wzrost
+order by wzrost_procentowy desc
+
+-- Problem biznesowy: Intuicyjnie zakładamy, że napływ inwestycji do regionu redukuje bezrobocie. Analiza korelacji przeprowadzona na dostępnych danych wskazuje jednak współczynnik +0,37 pomiędzy poziomem inwestycji a liczbą bezrobotnych — czyli kierunek odwrotny do oczekiwanego. Przed podjęciem decyzji inwestycyjnych fundusz wymaga wyjaśnienia tego pozornego paradoksu.
+
+with kwartalne as (
+select 
+
+	gi."name" as Powiat,
+	gi.bezrobocie,
+	gi.ludnosc,
+	gi.inwestycje,
+	ntile(4) over (order by gi.inwestycje ) as koszyk_inwestycyjny
+		
+from gus_indicators gi
+
+where gi."year"::int = 2024
+
+)
+
+select 
+	round((Sum(cast(bezrobocie as numeric)) / sum(cast(ludnosc as numeric))) * 100,2) || '%' as procent_bezrobocia,
+	round(AVG(inwestycje::numeric),2) as srednie_inwestycje,
+	round(AVG(bezrobocie::numeric),2) as srednie_bezrobocie,
+	koszyk_inwestycyjny,
+	COUNT(powiat) AS liczba_powiatow
+	
+from kwartalne
+
+group by koszyk_inwestycyjny
+order by koszyk_inwestycyjny desc
+
+
+
