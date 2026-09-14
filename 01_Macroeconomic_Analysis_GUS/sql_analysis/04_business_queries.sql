@@ -150,4 +150,29 @@ group by koszyk_inwestycyjny
 order by koszyk_inwestycyjny desc
 
 
+--Problem biznesowy: Inwestycja długoterminowa w region skazany na wyludnienie jest obarczona wysokim ryzykiem — za 10–15 lat może tam brakować zarówno konsumentów, jak i pracowników. Wskaźnik relacji liczby zgonów do liczby urodzeń jest jednym z najlepszych sygnałów wczesnego ostrzegania. Wartość powyżej 1,5 oznacza, że region traci populację w alarmującym tempie.
+
+with demografia as (
+
+select 
+	   gi."name" as powiat,
+	   gi."year"::int as year,
+	   round(cast(zgony as numeric),0) as zgony,
+	   ROUND(gi.urodzenia::numeric, 0) AS urodzenia,
+	   round(cast(zgony as numeric) / nullif(cast(gi.urodzenia as numeric),0),2) as wskasnik_demograficzny
+from gus_indicators gi 
+
+)
+select
+		powiat,
+		wskasnik_demograficzny,
+		lag(wskasnik_demograficzny) over (partition by powiat order by year),
+		year,
+		case 
+			when wskasnik_demograficzny > 1.5 then 'Krytyczny'
+			when wskasnik_demograficzny > 1.1 and wskasnik_demograficzny <= 1.5 then 'Ostrzegawczy'
+		else 'Stabilny'
+		end as Metryka
+		
+from demografia
 
