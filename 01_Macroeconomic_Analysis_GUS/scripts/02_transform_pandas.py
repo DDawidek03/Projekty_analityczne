@@ -5,8 +5,8 @@ import json
 
 
 pliki = ["dane_459121.json",
-        "dane_3149.json","dane_58565.json","dane_64428.json",
-        "dane_72305.json","dane_155064.json","dane_395374.json","dane_6.json"]
+        "dane_450540.json","dane_58565.json","dane_64428.json",
+        "dane_72305.json","dane_155064.json","dane_395374.json","dane_450541.json"]
 
 tlumacz_wskaznikow = {
     "dane_459121.json": "bezrobocie",
@@ -15,8 +15,8 @@ tlumacz_wskaznikow = {
     "dane_58565.json": "przestepstwa",     
     "dane_395374.json": "nowe_firmy",      
     "dane_72305.json": "ludnosc",          
-    "dane_3149.json": "urodzenia",         
-    "dane_6.json": "zgony"
+    "dane_450540.json": "urodzenia",         
+    "dane_450541.json": "zgony"
 }
 
 przetworzone_dane = []
@@ -40,4 +40,3 @@ df_tabela = df_master.pivot_table(
 print(df_tabela.head(15))
 
 df_tabela.to_parquet("../dane/merged_data.parquet",index=False)
-
