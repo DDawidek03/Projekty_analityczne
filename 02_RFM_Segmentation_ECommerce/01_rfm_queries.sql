@@ -57,27 +57,44 @@ with rfm as (
 	group by oc.customer_unique_id 
 
 ), order_dates as (
+
 	select max(oo.order_purchase_timestamp::date) as order_dayes
 	from olist_orders oo
+	
 ), raw_rfm as (
 
-select  
-    rfm.customer_unique_id,
-    ( od.order_dayes - rfm.customer_dayes ) as recency_days,
-    rfm.total_orders as frequency,
-    rfm.total_amount as monetary
+	select  
+    	rfm.customer_unique_id,
+    	( od.order_dayes - rfm.customer_dayes ) as recency_days,
+    	rfm.total_orders as frequency,
+    	rfm.total_amount as monetary
 
-from rfm
-cross join order_dates od
+	from rfm
+	cross join order_dates od
+), rfm_scores as (
+
+	select  
+    	rr.customer_unique_id,
+    	rr.recency_days,
+    	rr.frequency,
+    	rr.monetary,
+    	ntile(5) over (order by recency_days desc ) AS r_score,
+    	ntile(5) over (order by frequency ) AS f_score,
+    	ntile(5) over (order by monetary ) AS m_score
+
+	from raw_rfm as rr
 )
 
-select  
-    rr.customer_unique_id,
-    rr.recency_days,
-    rr.frequency,
-    rr.monetary,
-    ntile(5) over (order by recency_days desc ) AS r_score,
-    ntile(5) over (order by frequency desc ) AS f_score,
-    ntile(5) over (order by monetary desc ) AS m_score
-
-from raw_rfm as rr
+select rs.customer_unique_id,
+	   rs.recency_days || ' Days' as recency_days,
+       rs.frequency,
+       rs.monetary,
+		case
+			when r_score = 5 and f_score >= 4 and m_score >= 4 then 'Champions'
+			when f_score >= 4 then 'Loyal Customers'
+			when r_score >= 4 and f_score > 2 and f_score <= 3 then 'Potential Loyalists'
+			when r_score <= 2 and f_score >= 3 then 'At Risk'
+			when r_score = 1 and f_score = 1 then 'Hibernating / Lost'
+			else 'General / Promotable'
+		end as rfm_segment
+from rfm_scores rs
