@@ -83,7 +83,8 @@ with rfm as (
     	ntile(5) over (order by monetary ) AS m_score
 
 	from raw_rfm as rr
-)
+	
+), rfm_segmnets as (
 
 select rs.customer_unique_id,
 	   rs.recency_days || ' Days' as recency_days,
@@ -98,3 +99,21 @@ select rs.customer_unique_id,
 			else 'General / Promotable'
 		end as rfm_segment
 from rfm_scores rs
+)
+
+select 
+		rfm_s.rfm_segment,
+		round(count(rfm_s.customer_unique_id),0) as number_of_customers,
+		round(AVG(rfm_s.monetary),2) as average_expenses,
+		round(SUM(rfm_s.monetary),2) as total_revenue,
+		ROUND((COUNT(rfm_s.customer_unique_id) * 100.0) / SUM(COUNT(rfm_s.customer_unique_id)) OVER (), 2) || ' %' AS percentage_share
+from rfm_segmnets as rfm_s
+group by rfm_s.rfm_segment
+order by total_revenue desc
+
+--- 3.4
+select 
+	   SUM(oop.payment_value) filter (where oop.payment_type = 'credit_card') as credit_card_total,
+	   SUM(oop.payment_value) filter ( where oop.payment_type = 'boleto') as boleto_total,
+	   SUM(oop.payment_value) filter ( where oop.payment_type = 'voucher') as voucher_total
+from olist_order_payments oop
