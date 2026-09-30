@@ -16,6 +16,10 @@ env/
 .idea/
 .DS_Store
 
+# Agenty AI i skille (prywatne, nie portfolio)
+.agents/
+skills-lock.json
+
 # reguły dla danych
 dane/*.json
 Data/*.csv
