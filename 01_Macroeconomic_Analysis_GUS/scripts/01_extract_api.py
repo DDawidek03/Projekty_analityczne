@@ -2,6 +2,8 @@ import requests as req
 import json
 import time
 
+from config import DATA_DIR, LATA, WSKAZNIKI
+
 BASE_URL = "https://bdl.stat.gov.pl/api/v1"
 
 '''      
@@ -84,19 +86,16 @@ def pobierz_dane_gus(id_wskaznika, lata):
 
     return wszystkie_dane
 
-lata = [2018, 2019, 2020, 2021, 2022, 2023, 2024]
-lista_wskaznikow = [459121, 64428, 155064, 58565, 395374, 72305, 450540, 450541]
+lata = LATA
+lista_wskaznikow = list(WSKAZNIKI)
 
 for i in lista_wskaznikow:
     print(f"Pobieram wskaźnik {i}...")
     dane = pobierz_dane_gus(i, lata)
     if dane:
-        with open(f"dane/dane_{i}.json", "w", encoding="utf-8") as plik:
+        with open(DATA_DIR / f"dane_{i}.json", "w", encoding="utf-8") as plik:
             json.dump(dane, plik, ensure_ascii=False, indent=4)
     else:
         print(f"Pomijam wskaźnik {i}, bo API nie zwróciło danych.")
 
     time.sleep(1)
-
-
-    

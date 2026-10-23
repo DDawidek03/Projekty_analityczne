@@ -1,28 +1,17 @@
-from operator import index
 import pandas as pd
 import json
 
+from config import DATA_DIR, PARQUET_PATH, WSKAZNIKI
 
 
-pliki = ["dane_459121.json",
-        "dane_450540.json","dane_58565.json","dane_64428.json",
-        "dane_72305.json","dane_155064.json","dane_395374.json","dane_450541.json"]
 
-tlumacz_wskaznikow = {
-    "dane_459121.json": "bezrobocie",
-    "dane_64428.json": "wynagrodzenia",
-    "dane_155064.json": "inwestycje",      
-    "dane_58565.json": "przestepstwa",     
-    "dane_395374.json": "nowe_firmy",      
-    "dane_72305.json": "ludnosc",          
-    "dane_450540.json": "urodzenia",         
-    "dane_450541.json": "zgony"
-}
+pliki = [f"dane_{id_wskaznika}.json" for id_wskaznika in WSKAZNIKI]
+tlumacz_wskaznikow = {f"dane_{id_wskaznika}.json": kod for id_wskaznika, kod in WSKAZNIKI.items()}
 
 przetworzone_dane = []
 
 for plik in pliki:
-    plik_path = "../dane/" + plik 
+    plik_path = DATA_DIR / plik
     with open(plik_path, 'r', encoding="UTF-8") as file:
         dane = json.load(file)
     df = pd.json_normalize(dane, record_path='values', meta=['id','name'])
@@ -39,4 +28,4 @@ df_tabela = df_master.pivot_table(
 
 print(df_tabela.head(15))
 
-df_tabela.to_parquet("../dane/merged_data.parquet",index=False)
+df_tabela.to_parquet(PARQUET_PATH, index=False)

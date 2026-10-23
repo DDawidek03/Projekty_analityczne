@@ -1,99 +1,33 @@
-import os
-from dotenv import load_dotenv
-from sqlalchemy import create_engine, text
-import json
-import pandas as pd
+from sqlalchemy import text
 
-# Load environment variables from .env file located in the parent directory
-env_path = os.path.join(os.path.dirname(__file__), '..', '.env')
-load_dotenv(env_path)
+from config import DATA_DIR, WSKAZNIKI, get_engine, run_sql_file
 
-USER = os.getenv("DB_USER", "damiandawidek")
-PASSWORD = os.getenv("DB_PASSWORD", "")
-HOST = os.getenv("DB_HOST", "localhost")
-PORT = os.getenv("DB_PORT", "5432")
-DN_NAME = os.getenv("DB_NAME", "Projekt_1")
+insert_staging = text("""
+    INSERT INTO stg_gus_values (indicator_code, unit_id, unit_name, year, value)
+    SELECT
+        :kod_wskaznika,
+        powiat.id,
+        powiat.name,
+        CAST(dane_roczne.year AS INT),
+        dane_roczne.val
+    FROM json_to_recordset(CAST(:moj_json AS json)) AS powiat(id VARCHAR, name VARCHAR, "values" JSON)
+    CROSS JOIN json_to_recordset(powiat."values") AS dane_roczne(year VARCHAR, val DOUBLE PRECISION);
+""")
 
-ENGINE = create_engine(f"postgresql://{USER}:{PASSWORD}@{HOST}:{PORT}/{DN_NAME}")
+ENGINE = get_engine()
 
 try:
-    with ENGINE.connect() as conn:
+    with ENGINE.begin() as conn:
+        run_sql_file(conn, "01_create_star_schema.sql")
 
-        sql_code = text("""
-            drop table if exists fact_economic_indicators;
-            drop table if exists dim_units;
+        for id_wskaznika, kod in WSKAZNIKI.items():
+            dane_json = (DATA_DIR / f"dane_{id_wskaznika}.json").read_text(encoding="utf-8")
+            wynik = conn.execute(insert_staging, {"kod_wskaznika": kod, "moj_json": dane_json})
+            print(f"Załadowano staging: {kod} ({wynik.rowcount} wierszy)")
 
-            create table dim_units(
-                id varchar(20) primary key,
-                name varchar(255)
-            );
+        run_sql_file(conn, "02_populate_star_schema.sql")
 
-            create table fact_economic_indicators(
-                id_units VARCHAR(15) REFERENCES dim_units(id),
-                year int,
-                unemployment_value int,
-                salary_value NUMERIC,
-                primary key (id_units,year)
-            );
-        """)
-
-        conn.execute(sql_code);
-        conn.commit();
-        print("Stworzono baze danych");
-
-        with open("dane/dane_bezrobocia.json","r",encoding="utf-8") as plik_bezrobocia:
-            dane_bezrobocia = plik_bezrobocia.read();
-
-            insert_dim_units = text("""
-                INSERT INTO dim_units (id, name)
-                SELECT id, name
-                FROM json_to_recordset(CAST(:moj_json AS json)) AS x(id VARCHAR, name VARCHAR)
-                ON CONFLICT (id) DO NOTHING;
-            """)
-
-
-            conn.execute(insert_dim_units, {"moj_json": dane_bezrobocia})
-            conn.commit()
-            print("Załadowano Wymiar")
-
-            insert_fakty_bezrobocie = text("""
-                INSERT INTO fact_economic_indicators (id_units, year, unemployment_value)
-                SELECT 
-                    powiat.id, 
-                    CAST(dane_roczne.year AS INT), 
-                    CAST(dane_roczne.val AS INT)
-                FROM json_to_recordset(CAST(:moj_json AS json)) AS powiat(id VARCHAR, "values" JSON)
-                CROSS JOIN json_to_recordset(powiat."values") AS dane_roczne(year VARCHAR, val INT)
-                ON CONFLICT (id_units, year) DO UPDATE 
-                SET unemployment_value = EXCLUDED.unemployment_value;
-            """)
-
-            conn.execute(insert_fakty_bezrobocie, {"moj_json": dane_bezrobocia})
-            conn.commit()
-            print("Załadowano Fakty")
-
-
-
-
-        with open("dane/dane_wynagrodzenia.json","r",encoding="utf-8") as plik_wynagrodzenia:
-            dane_wynagrodzenia = plik_wynagrodzenia.read();
-
-            insert_fakty_wynagrodzenie = text("""
-                INSERT INTO fact_economic_indicators (id_units, year, salary_value)
-                SELECT 
-                    powiat.id, 
-                    CAST(dane_roczne.year AS INT), 
-                    CAST(dane_roczne.val AS NUMERIC)
-                FROM json_to_recordset(CAST(:moj_json AS json)) AS powiat(id VARCHAR, "values" JSON)
-                CROSS JOIN json_to_recordset(powiat."values") AS dane_roczne(year VARCHAR, val NUMERIC)
-                ON CONFLICT (id_units, year) DO UPDATE 
-                SET salary_value = EXCLUDED.salary_value;
-            """)
-            conn.execute(insert_fakty_wynagrodzenie, {"moj_json": dane_wynagrodzenia})
-            conn.commit()
-            print("Załadowano Fakty (Wynagrodzenie)")
-
-                
+    print("Gotowe: star schema zbudowana")
 
 except Exception as e:
-    print(f"Błąd połączenia: {e}")
+    print(f"Błąd: {e}")
