@@ -3,6 +3,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
+from sqlalchemy.engine import URL
 
 PROJECT_DIR = Path(__file__).resolve().parent.parent
 DATA_DIR = PROJECT_DIR / "dane"
@@ -31,7 +32,15 @@ def get_engine():
     host = os.getenv("DB_HOST", "localhost")
     port = os.getenv("DB_PORT", "5432")
     db_name = os.getenv("DB_NAME", "Projekt_1")
-    return create_engine(f"postgresql://{user}:{password}@{host}:{port}/{db_name}")
+    database_url = URL.create(
+        "postgresql",
+        username=user,
+        password=password,
+        host=host,
+        port=port,
+        database=db_name,
+    )
+    return create_engine(database_url)
 
 
 def run_sql_file(conn, nazwa_pliku):
