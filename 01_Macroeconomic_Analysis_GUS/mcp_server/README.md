@@ -17,44 +17,23 @@ A small **Model Context Protocol (MCP)** server that lets an AI model (Gemini, C
 
 ## Demo
 
-A question in Polish (*"How many counties are there, is it true that about 380?"*). Gemini called the tools 3 times (`CallToolRequest`) and answered from the database: **380 counties = 314 rural counties (powiaty ziemskie) + 66 cities with county rights**. The numbers match `dim_units`.
+A question in Polish (_"How many counties are there, is it true that about 380?"_). Gemini called the tools 3 times (`CallToolRequest`) and answered from the database: **380 counties = 314 rural counties (powiaty ziemskie) + 66 cities with county rights**. The numbers match `dim_units`.
 
 ![MCP + Gemini demo](../images/mcp_gemini_demo.png)
 
 ## Tools
 
-| Tool | What it does |
-|---|---|
-| `list_indicators` | Indicator names to use in other tools, their units and years |
-| `list_voivodeships` | The 16 voivodeship names |
-| `search_county` | Find counties by part of the name (names are not unique, so it returns `id` + voivodeship) |
-| `get_indicator` | Value of an indicator for one county, or the full 2018–2024 time series |
-| `compare_to_national` | County vs. national average: difference and ratio |
-| `top_counties` | Ranking by indicator and year, optional voivodeship filter |
-| `voivodeship_summary` | Average of an indicator per voivodeship |
+| Tool                  | What it does                                                                               |
+| --------------------- | ------------------------------------------------------------------------------------------ |
+| `list_indicators`     | Indicator names to use in other tools, their units and years                               |
+| `list_voivodeships`   | The 16 voivodeship names                                                                   |
+| `search_county`       | Find counties by part of the name (names are not unique, so it returns `id` + voivodeship) |
+| `get_indicator`       | Value of an indicator for one county, or the full 2018–2024 time series                    |
+| `compare_to_national` | County vs. national average: difference and ratio                                          |
+| `top_counties`        | Ranking by indicator and year, optional voivodeship filter                                 |
+| `voivodeship_summary` | Average of an indicator per voivodeship                                                    |
 
 Indicators: `unemployment`, `salary`, `investment`, `population`, `new_firms`, `crime_detection`, `births`, `deaths`.
-
-## Setup
-
-**Requirements:** the PostgreSQL database must be running and already loaded (see the [main README](../README.md#how-to-run)).
-
-```bash
-pip install -r mcp_server/requirements.txt
-```
-
-The project's `.env` file (git-ignored, never commit it) needs:
-
-```
-DB_USER=...
-DB_PASSWORD=...
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=Projekt_1
-
-GEMINI_API_KEY=...            # only for gemini_client.py
-GEMINI_MODEL=gemini-3.5-flash # optional, this is the default
-```
 
 ## How to use it
 
@@ -81,14 +60,16 @@ The `INFO Processing request of type CallToolRequest` lines in the terminal show
 
 ### 2. Claude Desktop
 
-Open *Settings → Developer → Edit Config* (`~/Library/Application Support/Claude/claude_desktop_config.json` on macOS) and add the server. Use **absolute paths** and the Python interpreter that has the requirements installed (`which python3`):
+Open _Settings → Developer → Edit Config_ (`~/Library/Application Support/Claude/claude_desktop_config.json` on macOS) and add the server. Use **absolute paths** and the Python interpreter that has the requirements installed (`which python3`):
 
 ```json
 {
   "mcpServers": {
     "gus-counties": {
       "command": "/full/path/to/python3",
-      "args": ["/full/path/to/01_Macroeconomic_Analysis_GUS/mcp_server/server.py"]
+      "args": [
+        "/full/path/to/01_Macroeconomic_Analysis_GUS/mcp_server/server.py"
+      ]
     }
   }
 }
@@ -112,10 +93,10 @@ npx @modelcontextprotocol/inspector python3 mcp_server/server.py
 
 ## Example questions
 
-- *Which 10 counties had the highest average salary in 2024?*
-- *Show the unemployment time series for powiat grodziski in mazowieckie.*
-- *Which voivodeship had the highest crime detection rate in 2022?*
-- *Compare births in powiat m. Kraków with the national average in 2020.*
+- _Which 10 counties had the highest average salary in 2024?_
+- _Show the unemployment time series for powiat grodziski in mazowieckie._
+- _Which voivodeship had the highest crime detection rate in 2022?_
+- _Compare births in powiat m. Kraków with the national average in 2020._
 
 ## Design choices (security)
 
