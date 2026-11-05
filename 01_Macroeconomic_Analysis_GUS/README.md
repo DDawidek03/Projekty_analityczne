@@ -1,7 +1,7 @@
 # Project 1: Macroeconomic Analysis — Full ETL Pipeline (GUS BDL API)
 
 ## Overview
-This project implements a complete, production-grade **ETL/ELT pipeline** for regional macroeconomic data, sourced from the **Statistics Poland (GUS)** public REST API. The pipeline extracts 8 key performance indicators for **380+ Polish counties (powiats)** across 7 years (2018–2024), transforms deeply nested JSON responses, and loads the results into a **star schema** in a **PostgreSQL** database — ready for advanced SQL analysis and **Power BI** dashboarding.
+This project implements a complete, production-grade **ETL/ELT pipeline** for regional macroeconomic data, sourced from the **Statistics Poland (GUS)** public REST API. The pipeline extracts 8 key performance indicators for **380+ Polish counties (powiats)** across 7 years (2018–2024), transforms deeply nested JSON responses, and loads the results into a **star schema** in a **PostgreSQL** database — ready for advanced SQL analysis, a **Power BI** report and natural-language queries through an **MCP server**.
 
 > **Key Highlight:** This project demonstrates **two independent data loading strategies** (ETL and ELT), showcasing versatility in both Python-centric and SQL-centric data engineering approaches.
 
@@ -121,6 +121,9 @@ Both loaders run in a **single transaction**: either the whole load succeeds or 
 01_Macroeconomic_Analysis_GUS/
 ├── README.md                          # Project documentation
 ├── Zadanie_Dodatkowe.md               # Business requirements & analyst brief
+├── Projekt_1.pbix                     # Power BI report (connected to the PostgreSQL star schema)
+├── miary_dax.md                       # DAX measures used in the report, with explanations
+├── M_power_query.pq                   # Power Query M: fetching one indicator straight from the GUS API
 │
 ├── scripts/
 │   ├── 01_extract_api.py              # Bronze: API extraction, pagination, rate-limit handling
@@ -134,15 +137,62 @@ Both loaders run in a **single transaction**: either the whole load succeeds or 
 │       └── 03_quality_checks.sql      # Row counts, NULL checks, voivodeship coverage
 │
 ├── sql_analysis/
-│   └── 04_business_queries.sql        # Business Queries: Window Functions (LAG), CTEs, Aggregations
+│   ├── 04_business_queries.sql        # Business Queries: Window Functions (LAG), CTEs, Aggregations
+│   └── ANALYTICAL_BRIEF.md            # Research questions and report requirements (PL)
+│
+├── mcp_server/
+│   ├── server.py                      # MCP server: 7 read-only tools over the star schema
+│   ├── gemini_client.py               # CLI client: ask Gemini a question, it calls the tools
+│   ├── requirements.txt
+│   └── README.md                      # Setup for Gemini, Claude Desktop, Claude Code, MCP Inspector
 │
 ├── images/
-│   └── star_schema.png                # ER diagram of the star schema (DBeaver)
+│   ├── star_schema.png                # ER diagram of the star schema (DBeaver)
+│   ├── mcp_gemini_demo.png            # Gemini answering a question via MCP tools
+│   └── pbi_*.png                      # Power BI report pages (4 screenshots)
 │
 └── dane/
     ├── dane_*.json                    # Raw API responses (Bronze layer)
     └── merged_data.parquet            # Transformed wide-format dataset (Silver layer)
 ```
+
+## Power BI Report
+
+`Projekt_1.pbix` connects to the PostgreSQL star schema (`dim_units`, `dim_year`, `fact_economic_indicators`, 1:N relationships). It has 4 pages: **Dashboard**, **Inwestycje** (investment), **Demografia** (demography) and **Rynek pracy** (labour market).
+
+Every page shares a navigation panel and two slicers: year range and voivodeship (screenshots below are filtered to mazowieckie).
+
+**Dashboard:** salary KPIs and year-over-year growth, county salary vs national average 2018–2024, top counties ranked by salary with an index (national average = 100), average salary per voivodeship.
+
+![Power BI: Dashboard](images/pbi_dashboard.png)
+
+**Rynek pracy (labour market):** unemployment rate vs national rate, salary vs unemployment scatter (bubble size = population), year-over-year change in the unemployment rate as a waterfall chart.
+
+![Power BI: Rynek pracy](images/pbi_rynek_pracy.png)
+
+**Inwestycje (investment):** decomposition tree (county type → salary group → unemployment group → year → county), investment per resident vs national level, year-over-year investment change by county type.
+
+![Power BI: Inwestycje](images/pbi_inwestycje.png)
+
+**Demografia (demography):** county map, births and deaths per 1,000 residents over time, deaths-to-births ratio per voivodeship against the 1.5 crisis threshold, county table with natural increase and population change.
+
+![Power BI: Demografia](images/pbi_demografia.png)
+
+All measures are documented in [`miary_dax.md`](miary_dax.md), grouped by level: basic aggregations and `DIVIDE`, `CALCULATE` and filter context, year-over-year comparisons, rankings and iterators. Includes a population-weighted average, so large and small counties are not counted equally.
+
+[`M_power_query.pq`](M_power_query.pq) shows an alternative path: loading one indicator (average salary) straight from the GUS API in Power Query M, with paging and record expansion.
+
+## MCP Server: Ask the Data in Natural Language
+
+[`mcp_server/`](mcp_server/) contains a **Model Context Protocol** server that lets an AI model (Gemini, Claude) answer questions about the county data. The model does not write SQL. It calls 7 fixed, parameterised, read-only tools (`top_counties`, `get_indicator`, `compare_to_national`, `voivodeship_summary`, …), and column names come from a whitelist, so model or user text never ends up in the query.
+
+```bash
+python3 mcp_server/gemini_client.py "Top 5 counties by unemployment in 2023"
+```
+
+![MCP + Gemini demo](images/mcp_gemini_demo.png)
+
+Setup for Claude Desktop, Claude Code and MCP Inspector, plus the read-only database role, is in [`mcp_server/README.md`](mcp_server/README.md).
 
 ## Indicators Tracked
 
@@ -166,7 +216,8 @@ Both loaders run in a **single transaction**: either the whole load succeeds or 
 | Storage | Apache Parquet (`pyarrow`) | Columnar compression, type preservation |
 | Database | PostgreSQL 16 | Relational storage, analytical SQL queries |
 | ORM / Connector | SQLAlchemy + psycopg2 | Python ↔ PostgreSQL bridge |
-| Visualization | Power BI *(planned)* | Executive dashboards, KPI reporting |
+| Visualization | Power BI Desktop (DAX, Power Query M) | 4-page report: dashboard, investment, demography, labour market |
+| AI access | MCP server (`mcp` SDK) + Gemini / Claude | Natural-language questions answered through read-only SQL tools |
 
 ## How to Run
 ```bash
@@ -191,7 +242,8 @@ Database credentials are read from `.env` in the project root (`DB_USER`, `DB_PA
 - [x] PostgreSQL loading (two independent strategies: ETL & ELT)
 - [x] Star schema with incremental UPSERT loading and quality checks
 - [x] Advanced SQL Analysis (Window Functions, CTEs, Ranking)
-- [ ] Power BI Executive Dashboard
+- [x] Power BI report (4 pages) with documented DAX measures
+- [x] MCP server: AI model queries the star schema through read-only tools
 
 ---
 

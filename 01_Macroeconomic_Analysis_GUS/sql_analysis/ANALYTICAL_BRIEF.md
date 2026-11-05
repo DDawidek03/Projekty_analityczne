@@ -3,7 +3,7 @@
 > **Klient:** Fundusz inwestycyjny Private Equity  
 > **Analityk:** Damian Dawidek  
 > **Źródło danych:** GUS Bank Danych Lokalnych (BDL API), dane za lata 2018–2024  
-> **Zakres:** 370 powiatów | 9 wskaźników makroekonomicznych  
+> **Zakres:** 380 powiatów | 8 wskaźników makroekonomicznych  
 > **Cel:** Identyfikacja regionów o najwyższym potencjale inwestycyjnym
 
 ---
@@ -92,18 +92,18 @@ zastosować klasyfikację: stan krytyczny, stan ostrzegawczy, stan stabilny.
 
 ### Strona 1 — Mapa Inwestycyjna Polski
 
-Celem tej strony jest odpowiedź na jedno pytanie zarządu: *"Gdzie dziś
-warto ulokować kapitał?"* Strona powinna być czytelna dla osoby bez
+Celem tej strony jest odpowiedź na jedno pytanie zarządu: _"Gdzie dziś
+warto ulokować kapitał?"_ Strona powinna być czytelna dla osoby bez
 wykształcenia technicznego i dawać odpowiedź w ciągu 30 sekund.
 
 **Elementy obowiązkowe:**
 
-| Element | Opis |
-|---|---|
-| Karty KPI (górny rząd) | Średnie wynagrodzenie w Polsce 2023, łączna wartość inwestycji, powiat o najwyższej dynamice wzrostu płac |
-| Wykres liniowy | Trend wynagrodzeń dla 5 największych miast w latach 2018–2024 |
-| Wykres słupkowy | Ranking TOP 10 powiatów według wartości inwestycji w 2023 roku |
-| Tabela z formatowaniem warunkowym | Powiaty posegregowane na segmenty zarobkowe z kolorowym oznaczeniem kategorii |
+| Element                           | Opis                                                                                                      |
+| --------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| Karty KPI (górny rząd)            | Średnie wynagrodzenie w Polsce 2023, łączna wartość inwestycji, powiat o najwyższej dynamice wzrostu płac |
+| Wykres liniowy                    | Trend wynagrodzeń dla 5 największych miast w latach 2018–2024                                             |
+| Wykres słupkowy                   | Ranking TOP 10 powiatów według wartości inwestycji w 2023 roku                                            |
+| Tabela z formatowaniem warunkowym | Powiaty posegregowane na segmenty zarobkowe z kolorowym oznaczeniem kategorii                             |
 
 ---
 
@@ -115,25 +115,24 @@ a bezrobociem). Strona jest skierowana do analityków ryzyka w funduszu.
 
 **Elementy obowiązkowe:**
 
-| Element | Opis |
-|---|---|
-| Wykres punktowy (Scatter Plot) | Oś X: bezrobocie, Oś Y: wynagrodzenia, rozmiar bańki: populacja — każda bańka to jeden powiat. Powiaty w lewym górnym rogu to "złoto inwestycyjne" |
-| Tabela klasyfikacji demograficznej | Ranking powiatów według wskaźnika zgony/urodzenia z oznaczeniami: krytyczny / ostrzegawczy / stabilny |
-| Wykres słupkowy | TOP 15 powiatów z najgorszym wskaźnikiem demograficznym |
+| Element                            | Opis                                                                                                                                               |
+| ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Wykres punktowy (Scatter Plot)     | Oś X: bezrobocie, Oś Y: wynagrodzenia, rozmiar bańki: populacja — każda bańka to jeden powiat. Powiaty w lewym górnym rogu to "złoto inwestycyjne" |
+| Tabela klasyfikacji demograficznej | Ranking powiatów według wskaźnika zgony/urodzenia z oznaczeniami: krytyczny / ostrzegawczy / stabilny                                              |
+| Wykres słupkowy                    | TOP 15 powiatów z najgorszym wskaźnikiem demograficznym                                                                                            |
 
 ---
 
 ## Plan realizacji
 
-| Etap | Zadanie | Status |
-|---|---|---|
-| 1 | Analiza SQL — odporność post-COVID | `[ ]` Do wykonania |
-| 2 | Analiza SQL — paradoks inwestycji i bezrobocia | `[ ]` Do wykonania |
-| 3 | Analiza SQL — alarm demograficzny | `[ ]` Do wykonania |
-| 4 | Power BI — Strona 1: Mapa Inwestycyjna | `[ ]` Do wykonania |
-| 5 | Power BI — Strona 2: Analiza Demograficzna | `[ ]` Do wykonania |
-| 6 | Aktualizacja dokumentacji (README) o wnioski | `[ ]` Do wykonania |
+| Etap | Zadanie                                        | Status         |
+| ---- | ---------------------------------------------- | -------------- |
+| 1    | Analiza SQL — odporność post-COVID             | `[x]` Zrobione |
+| 2    | Analiza SQL — paradoks inwestycji i bezrobocia | `[x]` Zrobione |
+| 3    | Analiza SQL — alarm demograficzny              | `[x]` Zrobione |
+| 4    | Power BI — Strona 1: Mapa Inwestycyjna         | `[x]` Zrobione |
+| 5    | Power BI — Strona 2: Analiza Demograficzna     | `[x]` Zrobione |
 
 ---
 
-*Dokument wewnętrzny projektu analitycznego. Dane źródłowe: GUS BDL API.*
+_Dokument wewnętrzny projektu analitycznego. Dane źródłowe: GUS BDL API._
