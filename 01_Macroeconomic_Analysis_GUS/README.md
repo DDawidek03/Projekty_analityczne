@@ -120,10 +120,10 @@ Both loaders run in a **single transaction**: either the whole load succeeds or 
 ```
 01_Macroeconomic_Analysis_GUS/
 ├── README.md                          # Project documentation
-├── Zadanie_Dodatkowe.md               # Business requirements & analyst brief
-├── Projekt_1.pbix                     # Power BI report (connected to the PostgreSQL star schema)
-├── miary_dax.md                       # DAX measures used in the report, with explanations
-├── M_power_query.pq                   # Power Query M: fetching one indicator straight from the GUS API
+│
+├── docs/
+│   ├── ANALYTICAL_BRIEF.md            # Research questions and report requirements (PL)
+│   └── Zadanie_Dodatkowe.md           # Original task: indicator scope and pipeline requirements (PL)
 │
 ├── scripts/
 │   ├── 01_extract_api.py              # Bronze: API extraction, pagination, rate-limit handling
@@ -137,8 +137,12 @@ Both loaders run in a **single transaction**: either the whole load succeeds or 
 │       └── 03_quality_checks.sql      # Row counts, NULL checks, voivodeship coverage
 │
 ├── sql_analysis/
-│   ├── 04_business_queries.sql        # Business Queries: Window Functions (LAG), CTEs, Aggregations
-│   └── ANALYTICAL_BRIEF.md            # Research questions and report requirements (PL)
+│   └── 04_business_queries.sql        # Business Queries: Window Functions (LAG), CTEs, Aggregations
+│
+├── power_bi/
+│   ├── Makroekonomia_Polski.pbix      # Power BI report (connected to the PostgreSQL star schema)
+│   ├── miary_dax.md                   # DAX measures used in the report, with explanations
+│   └── M_power_query.pq               # Power Query M: fetching one indicator straight from the GUS API
 │
 ├── mcp_server/
 │   ├── server.py                      # MCP server: 7 read-only tools over the star schema
@@ -158,7 +162,7 @@ Both loaders run in a **single transaction**: either the whole load succeeds or 
 
 ## Power BI Report
 
-`Projekt_1.pbix` connects to the PostgreSQL star schema (`dim_units`, `dim_year`, `fact_economic_indicators`, 1:N relationships). It has 4 pages: **Dashboard**, **Inwestycje** (investment), **Demografia** (demography) and **Rynek pracy** (labour market).
+[`power_bi/Makroekonomia_Polski.pbix`](power_bi/Makroekonomia_Polski.pbix) connects to the PostgreSQL star schema (`dim_units`, `dim_year`, `fact_economic_indicators`, 1:N relationships). It has 4 pages: **Dashboard**, **Inwestycje** (investment), **Demografia** (demography) and **Rynek pracy** (labour market).
 
 Every page shares a navigation panel and two slicers: year range and voivodeship (screenshots below are filtered to mazowieckie).
 
@@ -178,9 +182,9 @@ Every page shares a navigation panel and two slicers: year range and voivodeship
 
 ![Power BI: Demografia](images/pbi_demografia.png)
 
-All measures are documented in [`miary_dax.md`](miary_dax.md), grouped by level: basic aggregations and `DIVIDE`, `CALCULATE` and filter context, year-over-year comparisons, rankings and iterators. Includes a population-weighted average, so large and small counties are not counted equally.
+All measures are documented in [`power_bi/miary_dax.md`](power_bi/miary_dax.md), grouped by level: basic aggregations and `DIVIDE`, `CALCULATE` and filter context, year-over-year comparisons, rankings and iterators. Includes a population-weighted average, so large and small counties are not counted equally.
 
-[`M_power_query.pq`](M_power_query.pq) shows an alternative path: loading one indicator (average salary) straight from the GUS API in Power Query M, with paging and record expansion.
+[`power_bi/M_power_query.pq`](power_bi/M_power_query.pq) shows an alternative path: loading one indicator (average salary) straight from the GUS API in Power Query M, with paging and record expansion.
 
 ## MCP Server: Ask the Data in Natural Language
 
